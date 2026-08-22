@@ -15,3 +15,6 @@ class AgentState(TypedDict, total=False):
     retry_count: int
     final_output: str
     messages: Annotated[list, add_messages]
+    is_input_safe: bool
+    needs_db : bool 
+    error: bool

@@ -1,8 +1,10 @@
-from logging import log
+import logging
 
 from langchain_groq import ChatGroq
 from src.config.settings import settings
 from langchain_openai import ChatOpenAI
+
+logger = logging.getLogger(__name__)
 
 
 class DummyLLM:
@@ -45,6 +47,7 @@ class LLMProvider():
         """
         try:
             if self.model_name.startswith("groq"):
+                logger.info("Creating GROQ LLM instance with model: %s", self.configured_groq_model)
                 if not self.groq_api_key:
                     raise ValueError("GROQ_API_KEY is not configured.")
                 return ChatGroq(
@@ -53,6 +56,7 @@ class LLMProvider():
                     api_key=self.groq_api_key,
                     )
             elif (self.model_name.startswith("openai")):
+                logger.info("Creating OpenAI LLM instance with model: %s", self.configured_openai_model)
                 if not self.openai_api_key:
                     return DummyLLM()
                 return ChatOpenAI(
@@ -64,5 +68,5 @@ class LLMProvider():
             else:
                 raise ValueError(f"Unsupported model: {self.model_name}")
         except Exception as e:
-            log.info(f"Error creating LLM instance: {e}")
+            logger.exception("Error creating LLM instance: %s", e)
             return DummyLLM()        

@@ -9,6 +9,10 @@ from src.graph.state.agentstate import AgentState
 
 def generate_sql_from_question(state: AgentState) -> AgentState:
     """Generates SQL query from a natural language question using RAG approach."""
+    if state.get("is_input_safe") is False:
+        print(f"Input safety check failed for question: '{state.get('user_query', '')}'. Aborting SQL generation.")
+        return {"user_query": state.get("user_query", ""), "sql_error": "Input safety check failed."}
+    
     question = state.get("user_query", "")
     sql_query = state.get("generated_sql", "")
     sql_errors = state.get("sql_error", "")

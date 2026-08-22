@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # LLM Provider Configuration
     # Supports "openai", "anthropic", etc.
     GROQ_LLM_PROVIDER: str = Field(default="groq")
-    GROQ_LLM_MODEL: str = Field(default="llama-3.1-8b-instant")
+    GROQ_LLM_MODEL: str = Field(default="llama-3.3-70b-versatile")
     GROQ_LLM_TEMPERATURE: float = Field(default=0.0)
     OPENAI_LLM_PROVIDER: str = Field(default="openai")
     OPENAI_LLM_MODEL: str = Field(default="gpt-4o-mini")
