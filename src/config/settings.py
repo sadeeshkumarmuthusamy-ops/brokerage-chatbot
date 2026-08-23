@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -24,8 +23,6 @@ class Settings(BaseSettings):
     # App Settings
     PROJECT_NAME: str = "brokerage-chatbot-api"
 
-    # LLM Provider Configuration
-    # Supports "openai", "anthropic", etc.
     GROQ_LLM_PROVIDER: str = Field(default="groq")
     GROQ_LLM_MODEL: str = Field(default="llama-3.3-70b-versatile")
     GROQ_LLM_TEMPERATURE: float = Field(default=0.0)
@@ -45,6 +42,7 @@ class Settings(BaseSettings):
 
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
+    CHROMA_DB_PATH_LOCAL : str | None = None
 
 
 # Global settings instance

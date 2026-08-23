@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from urllib.request import urlopen
 
 from fastapi import APIRouter, HTTPException, status
-from langchain_core.messages import HumanMessage
+from pydantic import BaseModel, Field
 from src.graph.chatbot_graph import create_and_compile_workflow
 from src.graph.state.agentstate import AgentState
 from src.utils.sanitize_data import sanitize_all_input
@@ -16,6 +16,11 @@ logger = logging.getLogger(__name__)
 app = create_and_compile_workflow()
 
 router = APIRouter(prefix="/brokeragent", tags=["Chat & Agents"])
+
+
+class ChatRequest(BaseModel):
+    session_id: str = Field(min_length=1)
+    text: str = Field(min_length=1)
 
 def normalize_json_url(file_url: str) -> str:
     """Convert GitHub browser URLs to raw JSON URLs so they return file content."""
@@ -85,10 +90,10 @@ async def stream_chat_response(url: str):
         ) from exc
 
 @router.post("/broker-chat", summary="Chat with the broker agent")
-async def broker_chat_response(query: str):
+async def broker_chat_response(payload: ChatRequest):
     """broker agent chat endpoint."""
-    sanitize_data = sanitize_all_input(query)
-    config = {"configurable": {"thread_id": "user_session_abc999"}}
+    sanitize_data = sanitize_all_input(payload.text)
+    config = {"configurable": {"thread_id": payload.session_id}}
 
     prior_state = app.get_state(config)
     prior_history = []

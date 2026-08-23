@@ -4,12 +4,13 @@ from src.graph.state.agentstate import AgentState
 from src.languagemodels.llmprovider import get_llm_instance
 from src.config.settings import settings
 from langchain_core.prompts import ChatPromptTemplate
+from src.prompts.formatting_prompts import intent_router_system_prompt
 
 logger = logging.getLogger(__name__)
 
 class IntentClassification(BaseModel):
-    requires_database: bool = Field(
-        description="True if the question asks for dynamic information, metrics, or records that reside in our database tables. False for casual greetings, small talk, meta-questions about the bot, or requests that don't need a DB lookup."
+    requires_database: str = Field(
+        description="Return exactly 'true' if the question asks for dynamic information, metrics, or records in our database tables; otherwise return exactly 'false'."
     )
 
 def intent_router_node(state: AgentState):
@@ -25,21 +26,9 @@ def intent_router_node(state: AgentState):
     llm =  get_llm_instance(settings.GROQ_LLM_PROVIDER)
     structured_llm = llm.with_structured_output(IntentClassification)
     user_query = state.get("user_query", "")
-
-    # Clearly outline what requires a DB vs what does not
-    system_prompt = (
-        "You are an AI router. Analyze the user's input message.\n"
-        "Determine if answering it requires querying a sales/agreement/order database schema.\n\n"
-        "Set 'requires_database' to True if they ask for things like:\n"
-        "- Sales data, revenue figures, agreement/purchase order statuses, order numbers, specific dates/metrics.\n\n"
-        "Set 'requires_database' to False if the input is:\n"
-        "- Greetings ('Hi', 'Hello').\n"
-        "- Explanations/Static knowledge ('What is Python?', 'Explain SQL').\n"
-        "- Out-of-bounds text or completely unrelated questions."
-    )
     
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),
+        ("system", intent_router_system_prompt),
         ("human", user_query)
     ])
 
@@ -48,7 +37,13 @@ def intent_router_node(state: AgentState):
         chain = prompt | structured_llm
         decision = chain.invoke({"user_query": user_query})
             
-        return {"needs_db": decision.requires_database}
+        needs_db = decision.requires_database.strip().lower() == "true"
+        return {
+            "needs_db": needs_db,
+            "retry_count": 0,
+            "generated_sql": "",
+            "sql_error": "",
+        }
     except Exception as e:
         logger.error(f"Error during intent routing for query '{user_query}': {e}")
         return {

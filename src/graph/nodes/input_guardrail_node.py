@@ -26,8 +26,18 @@ def contains_prompt_injection(text: str) -> bool:
 def input_guardrail_node(state: AgentState) -> dict:
     """Check the current user query for common prompt-injection patterns."""
     logger.info("Running input guardrail node to check for prompt-injection patterns.")
-    user_text = state.get("user_query", "")
-    is_safe = not contains_prompt_injection(user_text)
+    try:
+        user_text = state.get("user_query", "")
+        if not isinstance(user_text, str):
+            raise TypeError("user_query must be a string")
+
+        is_safe = not contains_prompt_injection(user_text)
+    except Exception:
+        logger.exception("Input guardrail evaluation failed")
+        return {
+            "is_input_safe": False,
+            "error": True,
+        }
 
     if not is_safe:
         logger.warning("Security flag: prompt-injection pattern detected.")
