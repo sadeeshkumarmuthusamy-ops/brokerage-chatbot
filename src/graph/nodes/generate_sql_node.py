@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def generate_sql_from_question(state: AgentState) -> AgentState:
     """Generates SQL query from a natural language question using RAG approach."""
     if state.get("is_input_safe") is False:
-        print(f"Input safety check failed for question: '{state.get('user_query', '')}'. Aborting SQL generation.")
+        logger.warning("Input safety check failed; aborting SQL generation")
         return {"user_query": state.get("user_query", ""), "sql_error": "Input safety check failed."}
     
     question = state.get("user_query", "")
@@ -24,7 +24,7 @@ def generate_sql_from_question(state: AgentState) -> AgentState:
 
     try:
         if sql_errors and sql_query:
-            print(f"SQL errors detected: {sql_errors}. Retrying SQL generation for question '{question}'.")
+            logger.warning("SQL error detected; retrying SQL generation")
             user_prompt = f"""Previous SQL generation attempt resulted in errors: {sql_errors}. 
             previous SQL query: {sql_query}. Please generate a corrected SQL query for the following question: '{question}'."""
         else:
@@ -62,7 +62,7 @@ def generate_sql_from_question(state: AgentState) -> AgentState:
         if not sql_query:
             raise ValueError("The language model returned an empty SQL query.")
 
-        print(f"Generated SQL query for question '{question}':\n{sql_query}")
+        logger.info("Generated SQL query for question '%s'", question)
         return {
             "user_query": question,
             "db_schema": context,

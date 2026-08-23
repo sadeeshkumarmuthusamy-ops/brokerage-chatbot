@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     CHUNK_OVERLAP: int = 200
     CHROMA_DB_PATH_LOCAL : str | None = None
 
+    API_URL_PATH : str | None = None
 
 # Global settings instance
 settings = Settings()

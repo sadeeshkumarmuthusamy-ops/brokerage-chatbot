@@ -18,3 +18,6 @@ class AgentState(TypedDict, total=False):
     is_input_safe: bool
     needs_db : bool 
     error: bool
+    human_in_loop: bool
+    decision: str
+    decision_data: Dict[str, Any]

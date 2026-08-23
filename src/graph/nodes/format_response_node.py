@@ -27,6 +27,14 @@ def format_response(state: AgentState) -> AgentState:
     if state.get("sql_error"):
         return {"final_output": state["sql_error"]}
 
+    if state.get("human_in_loop") and state.get("final_output"):
+        return {
+            "final_output": state["final_output"],
+            "human_in_loop": True,
+            "decision": state.get("decision", "pending"),
+            "decision_data": state.get("decision_data", {}),
+        }
+
     try:
         llm = get_llm_instance(settings.GROQ_LLM_PROVIDER)
 
