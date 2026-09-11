@@ -28,6 +28,7 @@ def create_and_compile_workflow() -> StateGraph:
         workflow.add_edge("input_guardrail_node", "intent_router_node")
         workflow.add_edge("tool1_generate_sql", "tool2_execute_sql")
         workflow.add_edge("tool3_format_response", END)
+        workflow.add_edge("fallback_failure", "tool3_format_response")
 
         workflow.add_conditional_edges(
             "tool2_execute_sql",
