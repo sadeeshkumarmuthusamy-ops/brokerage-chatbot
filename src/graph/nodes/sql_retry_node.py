@@ -16,7 +16,7 @@ def should_retry_or_format(state: AgentState) -> Literal["tool1", "tool3", "fall
 
 def fallback_failure_node(state: AgentState) -> AgentState:
     """Triggers if the system hits maximum retry limits without resolving syntax errors."""
-    error_msg = "I encountered an issue processing your query directly against the store database. Please rephrase your query details."
+    error_msg = "Issue while extracting the data from DB. Please retry later"
 
     updated_history = list(state.get("chat_history", []))
     updated_history.append({"role": "user", "content": state.get("user_query", "")})

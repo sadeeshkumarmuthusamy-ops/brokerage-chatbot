@@ -17,3 +17,4 @@ spacy>=3.7.0
 langchain_groq
 langgraph
 gradio
+langsmith>=0.7.0
